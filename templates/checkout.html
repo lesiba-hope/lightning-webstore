@@ -41,7 +41,8 @@
 <script>
     const rHash = "{{ r_hash }}";
     const productId = "{{ product.id }}";
-    const expiryTime = {{ expiry_time }};
+    const expirySeconds = 600;
+    const expiryTime = Math.floor(Date.now() / 1000) + expirySeconds;
     let polling = true;
     let countdownInterval;
 

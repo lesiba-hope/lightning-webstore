@@ -8,7 +8,6 @@ import json
 import os
 import io
 import base64
-import time
 
 import qrcode
 from flask import Flask, render_template, jsonify, request
@@ -77,18 +76,12 @@ def checkout(product_id):
         return "Product not found", 404
 
     try:
-        # Create a Lightning invoice via LND (10 minute expiry)
+        # Create a Lightning invoice via LND
         memo = f"Webstore: {product['name']}"
-        expiry_seconds = 600  # 10 minutes
-        result = lnd.add_invoice(amount=product["price"], memo=memo, expiry=expiry_seconds)
+        result = lnd.add_invoice(amount=product["price"], memo=memo)
 
         payment_request = result["payment_request"]
         r_hash = result["r_hash"]
-        
-        # Calculate expiry timestamp
-        creation_time = int(time.time())
-        expiry_time = creation_time + expiry_seconds
-
         # Generate QR code
         qr_base64 = generate_qr_base64(payment_request.upper())
 
@@ -98,7 +91,6 @@ def checkout(product_id):
             payment_request=payment_request,
             r_hash=r_hash,
             qr_base64=qr_base64,
-            expiry_time=expiry_time,
         )
     except Exception as e:
         return render_template(

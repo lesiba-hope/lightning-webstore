@@ -100,19 +100,18 @@ class LNDClient:
     # ===========================================
     # INVOICES
     # ===========================================
-    def add_invoice(self, amount, memo="", expiry=3600):
+    def add_invoice(self, amount, memo=""):
         """
         Create a new Lightning invoice.
 
         Args:
             amount: Amount in satoshis
             memo: Description for the invoice
-            expiry: Invoice expiry in seconds (default 3600 = 1 hour)
 
         Returns:
             dict with r_hash, payment_request, add_index
         """
-        data = {"value": str(amount), "memo": memo, "expiry": str(expiry)}
+        data = {"value": str(amount), "memo": memo}
         return self._request("POST", "/v1/invoices", data)
 
     def lookup_invoice(self, r_hash_str):
