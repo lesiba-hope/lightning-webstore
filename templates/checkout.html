@@ -45,6 +45,7 @@
     const expiryTime = Math.floor(Date.now() / 1000) + expirySeconds;
     let polling = true;
     let countdownInterval;
+    let expired = false;
 
     function updateCountdown() {
         const now = Math.floor(Date.now() / 1000);
@@ -52,12 +53,14 @@
         
         if (remaining <= 0) {
             clearInterval(countdownInterval);
-            polling = false;
+            expired = true;
             document.getElementById('countdown').textContent = 'EXPIRED';
             document.getElementById('expiry-timer').style.color = '#d16969';
             const status = document.getElementById('payment-status');
-            status.className = 'payment-status status-expired';
-            status.innerHTML = '⚠️ Invoice expired';
+            if (!status.classList.contains('status-paid')) {
+                status.className = 'payment-status status-expired';
+                status.innerHTML = '⚠️ Invoice expired';
+            }
             return;
         }
         
@@ -97,12 +100,19 @@
                     setTimeout(() => {
                         window.location.href = '/success/' + productId;
                     }, 1500);
+                } else if (expired) {
+                    polling = false;
+                    const status = document.getElementById('payment-status');
+                    status.className = 'payment-status status-expired';
+                    status.innerHTML = '⚠️ Invoice expired';
                 } else {
                     setTimeout(checkPayment, 2000);
                 }
             })
             .catch(() => {
-                setTimeout(checkPayment, 3000);
+                if (!expired) {
+                    setTimeout(checkPayment, 3000);
+                }
             });
     }
 
